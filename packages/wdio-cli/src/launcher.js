@@ -36,7 +36,6 @@ class Launcher {
         this.isMultiremote = !Array.isArray(capabilities)
         this.exitCode = 0
         this.hasTriggeredExitRoutine = false
-        this.hasStartedAnyProcess = false
         this.schedule = []
         this.rid = []
         this.runnerStarted = 0
@@ -98,7 +97,7 @@ class Launcher {
         /**
          * catches ctrl+c event
          */
-        process.on('SIGINT', this.exitHandler.bind(this))
+        process.on('SIGINT', ::this.exitHandler)
 
         /**
          * make sure the program will not close instantly
@@ -345,7 +344,7 @@ class Launcher {
      * session first before killing
      */
     exitHandler () {
-        if (this.hasTriggeredExitRoutine || !this.hasStartedAnyProcess) {
+        if (this.hasTriggeredExitRoutine || !this.runner.hasStartedProcess) {
             log.log('\nKilling process, bye!')
 
             // When spawned as a subprocess,
@@ -366,9 +365,10 @@ class Launcher {
             this.runner.kill()
         }
 
-        log.log(`
+        // eslint-disable-next-line no-console
+        console.log(`
 
-End selenium sessions properly ...
+Ending sessions gracefully ...
 (press ctrl+c again to hard kill the runner)
 `)
 

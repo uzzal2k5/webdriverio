@@ -12,6 +12,10 @@ export default class LocalRunner extends EventEmitter {
         super()
         this.configFile = configFile
         this.config = config
+        this.interruptedRunner = []
+
+        this.hasTriggeredExitRoutine = false
+        this.hasStartedProcess = false
     }
 
     /**
@@ -36,8 +40,10 @@ export default class LocalRunner extends EventEmitter {
             silent: true
         })
 
-        childProcess.on('message',
-            (payload) => this.emit('message', Object.assign(payload, { cid })))
+        childProcess.on('message', (payload) => {
+            this.hasStartedProcess = true
+            this.emit('message', Object.assign(payload, { cid }))
+        })
 
         childProcess.on('exit', (code) => {
             log.debug(`Runner ${cid} finished with exit code ${code}`)
@@ -48,7 +54,6 @@ export default class LocalRunner extends EventEmitter {
             cid, command, configFile, argv, caps,
             processNumber, specs, server, isMultiremote
         })
-
 
         childProcess.stdout.pipe(new RunnerTransformStream(cid)).pipe(process.stdout)
         childProcess.stderr.pipe(new RunnerTransformStream(cid)).pipe(process.stderr)

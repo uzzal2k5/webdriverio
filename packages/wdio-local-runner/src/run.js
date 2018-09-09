@@ -27,14 +27,5 @@ process.on('SIGINT', () => {
     }
 
     forceKillingProcess = true
-    runner.sigintWasCalled = true
-
-    /**
-     * if session is currently in booting process don't do anythign
-     */
-    if (!global.browser) {
-        return
-    }
-
-    return runner.kill()
+    return runner.sigintHandler()
 })

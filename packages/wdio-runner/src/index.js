@@ -48,19 +48,30 @@ export default class Runner extends EventEmitter {
         this.framework = initialisePlugin(config.framework, 'framework').adapterFactory
         this.reporter = new BaseReporter(config, this.cid)
         this.inWatchMode = Boolean(config.watch)
+        this.haltSIGINT = true
 
         try {
             await runHook('beforeSession', config, this.caps, this.specs)
             const browser = global.browser = global.driver = await this.initialiseInstance(m.isMultiremote, this.caps)
             browser.config = config
+            this.haltSIGINT = false
 
             /**
              * register command event
              */
-            browser.on('command', (command) => this.reporter.emit(
-                'client:beforeCommand',
-                Object.assign(command, { sessionId: browser.sessionId })
-            ))
+            browser.on('command', (command) => {
+                if (command.method === 'debug') {
+                    process.send({
+                        origin: 'runner',
+                        name: 'debug'
+                    })
+                }
+
+                this.reporter.emit(
+                    'client:beforeCommand',
+                    Object.assign(command, { sessionId: browser.sessionId })
+                )
+            })
 
             /**
              * register result event
@@ -219,5 +230,23 @@ export default class Runner extends EventEmitter {
             const Service = initialisePlugin(serviceName, 'service')
             this.configParser.addService(new Service(config, this.caps))
         }
+    }
+
+    sigintHandler () {
+        console.log('sigintHandler');
+        if (this.sigintWasCalled) {
+            return
+        }
+
+        this.sigintWasCalled = true
+
+        if (this.haltSIGINT) {
+            return
+        }
+
+        console.log('SHIT ME DOWN');
+        this.shutdown(1, false)
+        global.browser.removeAllListeners()
+        process.removeAllListeners()
     }
 }
