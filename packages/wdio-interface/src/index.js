@@ -8,6 +8,7 @@ export default class CLInterface {
         this.stderrBuffer = []
         this.out = ::process.stdout.write
         this.err = ::process.stderr.write
+        this.inDebugMode = false
 
         this.clearAll()
 
@@ -23,6 +24,10 @@ export default class CLInterface {
 
     wrapStdio(stream, buffer) {
         stream.write = chunk => {
+            if (this.inDebugMode) {
+                return this.out(chunk)
+            }
+
             buffer.push(chunk)
             return true
         }

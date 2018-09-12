@@ -54,6 +54,7 @@ export default class Runner extends EventEmitter {
             await runHook('beforeSession', config, this.caps, this.specs)
             const browser = global.browser = global.driver = await this.initialiseInstance(m.isMultiremote, this.caps)
             browser.config = config
+            process.send({ origin: 'runner', name: 'sessionStarted' })
             this.haltSIGINT = false
 
             /**
@@ -164,6 +165,8 @@ export default class Runner extends EventEmitter {
      * kill runner session and end session if one was already started
      */
     async shutdown (failures, noSessionStarted) {
+        log.debug('Shutting down gracefully')
+
         if (global.browser && global.browser.sessionId) {
             await global.browser.deleteSession()
         }
@@ -233,7 +236,8 @@ export default class Runner extends EventEmitter {
     }
 
     sigintHandler () {
-        console.log('sigintHandler');
+        log.debug('Received SIGINT')
+
         if (this.sigintWasCalled) {
             return
         }
@@ -244,7 +248,6 @@ export default class Runner extends EventEmitter {
             return
         }
 
-        console.log('SHIT ME DOWN');
         this.shutdown(1, false)
         global.browser.removeAllListeners()
         process.removeAllListeners()

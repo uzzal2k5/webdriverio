@@ -35,6 +35,7 @@
     "url": "https://github.com/webdriverio/webdriverio/issues"
   },
   "dependencies": {
+    "async-exit-hook": "^2.0.1",
     "chalk": "^2.3.2",
     "cli-spinners": "^1.1.0",
     "deepmerge": "^2.0.1",

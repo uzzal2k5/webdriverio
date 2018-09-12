@@ -12,6 +12,7 @@ export default class WDIOCLInterface extends EventEmitter {
     constructor (config, specs) {
         super()
         this.hasAnsiSupport = !!chalk.supportsColor.hasBasic
+        this.hasStopped = false
         this.clockTimer = 0
         this.specs = specs
         this.config = config
@@ -59,6 +60,17 @@ export default class WDIOCLInterface extends EventEmitter {
      * event handler that is triggered when runner sends up events
      */
     onMessage (params) {
+        if (params.origin === 'runner' && params.name === 'debug') {
+            clearTimeout(this.interval)
+            this.interface.clearAll()
+            this.interface.inDebugMode = true
+
+            this.interface.log(chalk.yellow('The execution has stopped!'))
+            this.interface.log(chalk.yellow('You can now go into the browser or use the command line as REPL'))
+            this.interface.log(chalk.yellow('(To exit, press ^C again or type .exit)'))
+            this.interface.log()
+        }
+
         if (!params.origin || !this.messages[params.origin]) {
             return log.warn(`Can't identify message from worker: ${JSON.stringify(params)}, ignoring!`)
         }
@@ -72,6 +84,13 @@ export default class WDIOCLInterface extends EventEmitter {
     updateView (wasJobCleared) {
         const isFinished = this.jobs.size === 0
         const pendingJobs = this.specs.length - this.jobs.size - this.result.finished
+
+        /**
+         * no updates after process was killed
+         */
+        if (this.hasStopped) {
+            return
+        }
 
         /**
          * check if environment supports ansi and print a limited update if not
@@ -150,6 +169,12 @@ export default class WDIOCLInterface extends EventEmitter {
             clearTimeout(this.interval)
             this.interface.log('\n')
         }
+    }
+
+    shutdown () {
+        clearTimeout(this.interval)
+        this.interface.log('\n\nEnding sessions gracefully ...\n(press ctrl+c again to hard kill the runner)\n')
+        this.hasStopped = true
     }
 
     updateClock (interval = 100) {
