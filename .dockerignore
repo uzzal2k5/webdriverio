@@ -20,3 +20,4 @@ setup.sh
 build.sh
 Dockerfile
 .dockerignore
+user-script.sh
