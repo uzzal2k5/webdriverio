@@ -71,6 +71,7 @@ def DockerImageBuild( DOCKER_BUILD_SERVER, IMAGE_REPOSITORY, IMAGE_NAME ){
 }
 
 // BUILD NODE
+
 node {
 
 
