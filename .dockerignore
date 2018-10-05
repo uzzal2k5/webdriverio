@@ -21,3 +21,4 @@ build.sh
 Dockerfile
 .dockerignore
 user-script.sh
+Jenkinsfile
