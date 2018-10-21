@@ -1,6 +1,6 @@
 FROM node:8.12.0
 LABEL MAINTAINER="uzzal, https://www.linkedin.com/in/uzzal2k5/ "
-WORKDIR /webdriverio
+WORKDIR /app
 COPY .  .
 
 # INSTALL ALL REQUIRE PACKAGES

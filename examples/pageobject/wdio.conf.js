@@ -1,7 +1,7 @@
 exports.config = {
 
     //
-    hostname: 'selenium-chrome',
+    hostname: '172.30.83.2',
     //hostname: '0.0.0.0',
     port: 4444,
     path: '/wd/hub',

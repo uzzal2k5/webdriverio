@@ -1,0 +1,1 @@
+{"start":"2018-10-21T15:53:17.416Z","end":"2018-10-21T15:53:20.152Z","capabilities":{"browserName":"firefox","maxInstances":"5","moz:firefoxOptions":{}},"host":"127.0.0.1","port":4444,"baseUrl":"https://sales145.s.namely.com","framework":"jasmine","mochaOpts":{"timeout":10000},"suites":[]}
